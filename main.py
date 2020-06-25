@@ -116,7 +116,7 @@ if __name__ == "__main__":
     ACCESS_TOKEN = os.getenv("MASTODON_ACCESS_TOKEN")
     m = login(MASTODON_URL, ACCESS_TOKEN)
 
-    d = Dejie(BASE_URL, os.path.join(os.getcwd(), "latest_state"))
+    d = Dejie(BASE_URL, os.path.join(os.path.dirname(__file__), "latest_state"))
     d.load_state()
     news = d.update()
     print(len(news))
