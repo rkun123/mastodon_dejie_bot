@@ -38,9 +38,9 @@ class Dejie:
                 self.url
                     )
 
-    def __init__(self, url):
+    def __init__(self, url, latest_id_file_path):
         self.baseURL = url
-        self.latestNotificationId = 0
+        self.latest_id_file_path = latest_id_file_path
         self.latest_id = 0
     
     def update(self):
@@ -89,7 +89,7 @@ class Dejie:
     
     def load_state(self):
         try:
-            with open("latest_state", mode='tr') as f:
+            with open(self.latest_id_file_path, mode='tr') as f:
                 id = int(f.readline())
                 print("[Load] State is {0}", id)
                 self.latest_id = id
@@ -97,7 +97,7 @@ class Dejie:
             print("[Error] Error while read state file")
     def save_state(self):
         try:
-            with open("latest_state", mode='tw') as f:
+            with open(self.latest_id_file_path, mode='tw') as f:
                 f.write(str(self.latest_id))
                 print("[Save] State is {0}".format(self.latest_id))
         except:
@@ -105,17 +105,23 @@ class Dejie:
 
 
 if __name__ == "__main__":
+    is_dry = True
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "-t":
+            is_dry = False
+
     load_dotenv()
     BASE_URL = os.getenv("BASE_URL", "https://db.jimu.kyutech.ac.jp/cgi-bin/cbdb/db.cgi?page=DBView&did=357")
     MASTODON_URL = os.getenv("MASTODON_URL")
     ACCESS_TOKEN = os.getenv("MASTODON_ACCESS_TOKEN")
     m = login(MASTODON_URL, ACCESS_TOKEN)
 
-    d = Dejie(BASE_URL)
+    d = Dejie(BASE_URL, os.path.join(os.getcwd(), "latest_state"))
     d.load_state()
     news = d.update()
     print(len(news))
     for new in news:
         print(new)
-        m.toot("[デヂエ・お知らせ]\n{}\n#いきなりステーキ九州通信".format(new))
+        if not is_dry:
+            m.toot("[デヂエ・お知らせ]\n{}\n#いきなりステーキ九州通信".format(new))
     d.save_state()
