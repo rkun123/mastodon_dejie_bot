@@ -1,0 +1,2 @@
+# mastodon_dejie_bot
+九工大デヂエをMastodonでトゥートしてくれるキャワキャワBot
