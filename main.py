@@ -17,10 +17,13 @@ def login(mastodon_url, access_token):
 
 class Dejie:
     class Notification:
-        def __init__(self, title, id, url):
+        def __init__(self, title, id, url, date, target_department, target_grade):
             self.title = title
             self.id = id
             self.url = url
+            self.date = date
+            self.target_department = target_department
+            self.target_grade = target_grade
 
         def __lt__(self, other):
             if self.id < other.id:
@@ -33,8 +36,11 @@ class Dejie:
             return hash((self.id, self.title, self.url))
 
         def __str__(self):
-            return "{0}\n{1}".format(
+            return "{0}\n日付: {1}\n対象学科: {2}\n対象学年: {3}\n参照先: \n{4}\n".format(
                 self.title,
+                self.date,
+                self.target_department,
+                self.target_grade,
                 self.url
                     )
 
@@ -80,8 +86,11 @@ class Dejie:
                 try:
                     id = int(re.search("[0-9]+$", columns[2]['id']).group())
                     title = columns[2].get_text()
+                    date = columns[3].get_text()
+                    target_department = columns[5].get_text()
+                    target_grade = columns[6].get_text()
                     url = "{0}{1}".format(re.search("^.*/", self.baseURL).group(), columns[0].find('table').find('tr').find('td').find('a')['href'])
-                    notification_list.append(self.Notification(title, id, url))
+                    notification_list.append(self.Notification(title, id, url, date, target_department, target_grade))
                 except:
                     print("Error on parse notification list")
                     print(entry[2])
